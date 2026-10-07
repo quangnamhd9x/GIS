@@ -231,9 +231,14 @@
         <!-- Cột phải: Bản đồ nhúng qua iframe -->
         <section class="khung-ban-do">
             <div class="tieu-de-ban-do">Bản đồ vùng trồng</div>
-            <!-- Thay giá trị src bằng link bản đồ thật của bạn -->
+            <!--
+                Bản đồ vệ tinh Google Maps (không cần API key).
+                Đổi vị trí: sửa q=VĨ_ĐỘ,KINH_ĐỘ ; đổi độ phóng to: sửa z (10-20) ;
+                t=k là ảnh vệ tinh, bỏ t=k để xem bản đồ đường.
+                Có thể thay cả link bằng link nhúng từ Google My Maps, ArcGIS...
+            -->
             <iframe
-                src="https://google.com"
+                src="https://maps.google.com/maps?q=12.6797,108.0378&t=k&z=14&hl=vi&output=embed"
                 title="Bản đồ vùng trồng"
                 loading="lazy"
                 allowfullscreen>
