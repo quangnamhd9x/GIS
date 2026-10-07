@@ -1,0 +1,59 @@
+/* Style các phần tử do Leaflet tự sinh (Tailwind không gắn class vào được) */
+@import 'leaflet/dist/leaflet.css';
+
+.farm-map.leaflet-container {
+  background: #0b0c0a;
+  font-family: inherit;
+}
+
+/* Con trỏ dấu thập khi đang vẽ */
+.farm-map--drawing.leaflet-container,
+.farm-map--drawing .leaflet-interactive {
+  cursor: crosshair;
+}
+
+/* Nút zoom tông tối */
+.farm-map .leaflet-bar a {
+  background: #131411;
+  color: #d1fae5;
+  border-color: #164e33;
+}
+.farm-map .leaflet-bar a:hover {
+  background: #164e33;
+}
+
+.farm-map .leaflet-control-attribution {
+  background: rgb(19 20 17 / 0.75);
+  color: #9ca3af;
+}
+.farm-map .leaflet-control-attribution a {
+  color: #86efac;
+}
+
+/* Popup thông tin phân khu */
+.farm-map .leaflet-popup-content-wrapper,
+.farm-map .leaflet-popup-tip {
+  background: #131411;
+  color: #ecfdf5;
+  border: 1px solid #164e33;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+.farm-map .leaflet-popup-content {
+  margin: 12px 14px;
+}
+.farm-map .leaflet-popup-close-button {
+  color: #9ca3af;
+}
+
+/* Nhãn diện tích nằm giữa vùng đang vẽ */
+.farm-map .farm-map__area-label {
+  background: rgb(4 41 24 / 0.9);
+  color: #fff;
+  border: 1px solid #4ade80;
+  border-radius: 6px;
+  font-weight: 700;
+  box-shadow: none;
+}
+.farm-map .farm-map__area-label::before {
+  display: none;
+}
