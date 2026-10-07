@@ -191,6 +191,9 @@
         /* Danh sách vùng trồng bấm nhanh (sinh tự động từ dữ liệu) */
         .ds-vung {
             list-style: none;
+            max-height: 320px;   /* Gần 200 lô: cuộn trong khung */
+            overflow-y: auto;
+            padding-right: 4px;
             display: grid;
             gap: 8px;
         }
@@ -658,7 +661,7 @@
             <ul class="chi-so">
                 <li><span>Địa điểm</span><strong>Vụ Bổn, Đắk Lắk</strong></li>
                 <li><span>Cây trồng chính</span><strong>Chuối Cavendish</strong></li>
-                <li><span>Số vùng đang quản lý</span><strong id="tong-so-vung">0</strong></li>
+                <li><span>Số lô đang quản lý</span><strong id="tong-so-vung">0</strong></li>
             </ul>
 
             <div>
@@ -667,7 +670,7 @@
                 <span class="nhan">Truy xuất nguồn gốc</span>
             </div>
 
-            <h3>Danh sách vùng trồng</h3>
+            <h3>Danh sách lô</h3>
             <!-- Danh sách được sinh tự động từ mảng VUNG_TRONG trong JavaScript -->
             <ul class="ds-vung" id="ds-vung"></ul>
         </section>
@@ -683,7 +686,7 @@
                         id="o-tim-kiem"
                         type="search"
                         list="goi-y-ma-vung"
-                        placeholder="Mã vùng hoặc tọa độ (12.7234, 108.3456)"
+                        placeholder="Số lô (54), lô cũ (A12) hoặc tọa độ"
                         aria-label="Nhập mã vùng trồng hoặc tọa độ">
                     <datalist id="goi-y-ma-vung"></datalist>
                     <button type="submit">Tìm kiếm</button>
@@ -697,7 +700,7 @@
                 -->
                 <iframe
                     id="ban-do"
-                    src="https://maps.google.com/maps?q=12.7234,108.3456&t=k&z=15&hl=vi&output=embed"
+                    src="https://maps.google.com/maps?q=12.643,108.468&t=k&z=14&hl=vi&output=embed"
                     title="Bản đồ vùng trồng"
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade"
@@ -860,29 +863,23 @@
         &copy; 2026 Hệ thống Quản lý Vùng trồng GIS. Bảo lưu mọi quyền.
     </footer>
 
+    <!-- Dữ liệu lô KDGF (window.KDGF_LOTS) -->
+    <script src="data/lots.js"></script>
     <script>
         /* =========================================================
-           1. DỮ LIỆU GIẢ LẬP (MOCK DATA)
-           Sau này thay mảng này bằng dữ liệu lấy từ API/CSDL.
+           1. DỮ LIỆU LÔ THẬT CỦA KDGF
+           Lấy từ data/lots.js (tự sinh bởi tools/build_farm_data.py từ file
+           Excel định danh vườn cây + bản đồ PDF). Cập nhật: chạy lại script.
            ========================================================= */
-        const VUNG_TRONG = [
-            {
-                maVung: "VUNG-CHUOI-01",
-                tenVung: "Vùng trồng chuối số 01 - KD Green Farm",
-                loaiCay: "Chuối già Nam Mỹ (Cavendish)",
-                dienTich: "100 ha",
-                viDo: 12.7234,
-                kinhDo: 108.3456
-            },
-            {
-                maVung: "VUNG-CHUOI-05",
-                tenVung: "Vùng trồng chuối số 05 - KD Green Farm",
-                loaiCay: "Chuối xuất khẩu KDA",
-                dienTich: "500 ha",
-                viDo: 12.7290,
-                kinhDo: 108.3510
-            }
-        ];
+        const VUNG_TRONG = (window.KDGF_LOTS || []).map((l) => ({
+            maVung: String(l.lo),
+            loCu: l.loCu,
+            tenVung: `Lô ${l.lo} · Cụm ${l.cum} · ${l.doi}`,
+            loaiCay: l.giong || "Chưa ghi giống",
+            dienTich: l.dienTichHienHuu > 0 ? `${l.dienTichHienHuu.toLocaleString("vi-VN")} ha` : (l.trangThai || "—"),
+            viDo: l.viTri[0],
+            kinhDo: l.viTri[1]
+        }));
 
         /* =========================================================
            2. CẤU HÌNH BẢN ĐỒ
@@ -890,7 +887,7 @@
         const CAU_HINH = {
             doPhongTo: 16,       // Mức zoom khi định vị tới vùng trồng (10 - 20)
             kieuBanDo: "k",      // "k" = vệ tinh, "m" = bản đồ đường, "h" = lai
-            banKinhKhopKm: 1     // Tọa độ nhập vào cách vùng trồng dưới 1 km thì coi là thuộc vùng đó
+            banKinhKhopKm: 0.2   // Tọa độ nhập vào cách tâm lô dưới 200 m thì coi là thuộc lô đó
         };
 
         /* =========================================================
@@ -981,8 +978,10 @@
             }
 
             // Ưu tiên 1: tìm theo mã vùng (không phân biệt hoa thường)
+            // Chấp nhận "54", "lô 54", "Lo 54" hoặc tên lô cũ "A12"
+            const ma = tuKhoa.toLowerCase().replace(/^l[oô]\s*/, "");
             const theoMa = VUNG_TRONG.find(
-                (v) => v.maVung.toLowerCase() === tuKhoa.toLowerCase()
+                (v) => v.maVung === ma || v.loCu.some((c) => c.toLowerCase() === ma)
             );
             if (theoMa) return { vung: theoMa };
 
@@ -1005,7 +1004,7 @@
             }
 
             return {
-                loi: `Không tìm thấy "${tuKhoa}". Hãy nhập mã vùng (VD: VUNG-CHUOI-01) hoặc tọa độ (VD: 12.7234, 108.3456).`
+                loi: `Không tìm thấy "${tuKhoa}". Hãy nhập số lô (VD: 54), lô cũ (VD: A12) hoặc tọa độ (VD: 12.6407, 108.4727).`
             };
         }
 
@@ -1049,7 +1048,7 @@
            ========================================================= */
         function khoiTao() {
             // Số vùng trồng
-            $("tong-so-vung").textContent = `${VUNG_TRONG.length} vùng`;
+            $("tong-so-vung").textContent = `${VUNG_TRONG.length} lô`;
 
             // Gợi ý mã vùng trong ô tìm kiếm + danh sách bấm nhanh ở cột trái
             const goiY = $("goi-y-ma-vung");

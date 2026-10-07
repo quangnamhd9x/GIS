@@ -1,0 +1,201 @@
+{
+  "taoLuc": "2026-10-07T04:06",
+  "nguon": {
+    "excel": "8687c578-30.09.2026_KDGF___nh_danh_v__n_c_y.xlsx",
+    "banDoLo": "f325c58a-B_n____th__hi_n_c_m_A_B_v__t_n_l__m_i_final_4.pdf",
+    "banDoKeHoach": "65ae1b75-B_n____d__ki_n_b_n_giao_KD_3_giai__o_n_n_m_2026.pdf"
+  },
+  "tongLo": 194,
+  "coRanhGioi": 120,
+  "chiCoViTri": 74,
+  "khongCoViTri": 0,
+  "tongDienTichHienHuu": 377.96,
+  "tongSoCayHienHuu": 732008,
+  "canhBao": [
+    {
+      "lo": 1,
+      "muc": "gop-lo",
+      "noiDung": "Lô 1 gộp từ 6 lô cũ: 1, 2, 3, 4, 5, 6"
+    },
+    {
+      "lo": 49,
+      "muc": "excel",
+      "noiDung": "Lô 49 chưa ghi loại giống"
+    },
+    {
+      "lo": 54,
+      "muc": "gop-lo",
+      "noiDung": "Lô 54 gộp từ 2 lô cũ: 40, 41"
+    },
+    {
+      "lo": 101,
+      "muc": "excel",
+      "noiDung": "Lô 101 chưa ghi loại giống"
+    },
+    {
+      "lo": 102,
+      "muc": "excel",
+      "noiDung": "Lô 102 chưa ghi loại giống"
+    },
+    {
+      "lo": 103,
+      "muc": "excel",
+      "noiDung": "Lô 103 chưa ghi loại giống"
+    },
+    {
+      "lo": 104,
+      "muc": "excel",
+      "noiDung": "Lô 104 chưa ghi loại giống"
+    },
+    {
+      "lo": 105,
+      "muc": "excel",
+      "noiDung": "Lô 105 chưa ghi loại giống"
+    },
+    {
+      "lo": 106,
+      "muc": "excel",
+      "noiDung": "Lô 106 chưa ghi loại giống"
+    },
+    {
+      "lo": 107,
+      "muc": "excel",
+      "noiDung": "Lô 107 chưa ghi loại giống"
+    },
+    {
+      "lo": 108,
+      "muc": "excel",
+      "noiDung": "Lô 108 chưa ghi loại giống"
+    },
+    {
+      "lo": 109,
+      "muc": "excel",
+      "noiDung": "Lô 109 chưa ghi loại giống"
+    },
+    {
+      "lo": 118,
+      "muc": "excel",
+      "noiDung": "Lô 118 chưa ghi loại giống"
+    },
+    {
+      "lo": 119,
+      "muc": "excel",
+      "noiDung": "Lô 119 chưa ghi loại giống"
+    },
+    {
+      "lo": 120,
+      "muc": "excel",
+      "noiDung": "Lô 120 chưa ghi loại giống"
+    },
+    {
+      "lo": 121,
+      "muc": "excel",
+      "noiDung": "Lô 121 chưa ghi loại giống"
+    },
+    {
+      "lo": 124,
+      "muc": "excel",
+      "noiDung": "Lô 124 chưa ghi loại giống"
+    },
+    {
+      "lo": 136,
+      "muc": "excel",
+      "noiDung": "Lô 136 chưa ghi loại giống"
+    },
+    {
+      "lo": 137,
+      "muc": "excel",
+      "noiDung": "Lô 137 chưa ghi loại giống"
+    },
+    {
+      "lo": 138,
+      "muc": "excel",
+      "noiDung": "Lô 138 chưa ghi loại giống"
+    },
+    {
+      "lo": 139,
+      "muc": "excel",
+      "noiDung": "Lô 139 chưa ghi loại giống"
+    },
+    {
+      "lo": 140,
+      "muc": "excel",
+      "noiDung": "Lô 140 chưa ghi loại giống"
+    },
+    {
+      "lo": 141,
+      "muc": "excel",
+      "noiDung": "Lô 141 chưa ghi loại giống"
+    },
+    {
+      "lo": 142,
+      "muc": "excel",
+      "noiDung": "Lô 142 chưa ghi loại giống"
+    },
+    {
+      "lo": 143,
+      "muc": "excel",
+      "noiDung": "Lô 143 chưa ghi loại giống"
+    },
+    {
+      "lo": 144,
+      "muc": "excel",
+      "noiDung": "Lô 144 chưa ghi loại giống"
+    },
+    {
+      "lo": 145,
+      "muc": "excel",
+      "noiDung": "Lô 145 chưa ghi loại giống"
+    },
+    {
+      "lo": 147,
+      "muc": "excel",
+      "noiDung": "Lô 147 chưa ghi loại giống"
+    },
+    {
+      "lo": 148,
+      "muc": "excel",
+      "noiDung": "Lô 148 chưa ghi loại giống"
+    },
+    {
+      "lo": 150,
+      "muc": "excel",
+      "noiDung": "Lô 150 chưa ghi loại giống"
+    },
+    {
+      "lo": 153,
+      "muc": "excel",
+      "noiDung": "Lô 153 chưa ghi loại giống"
+    },
+    {
+      "lo": 155,
+      "muc": "excel",
+      "noiDung": "Lô 155 chưa ghi loại giống"
+    },
+    {
+      "lo": 156,
+      "muc": "excel",
+      "noiDung": "Lô 156 chưa ghi loại giống"
+    },
+    {
+      "lo": 161,
+      "muc": "excel",
+      "noiDung": "Lô 161 chưa ghi loại giống"
+    },
+    {
+      "lo": 162,
+      "muc": "excel",
+      "noiDung": "Lô 162 chưa ghi loại giống"
+    },
+    {
+      "lo": 163,
+      "muc": "excel",
+      "noiDung": "Lô 163 chưa ghi loại giống"
+    },
+    {
+      "lo": null,
+      "muc": "thieu-so",
+      "noiDung": "Không có lô số: 100, 110, 129, 159, 160, 184"
+    }
+  ]
+}

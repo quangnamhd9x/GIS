@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AdminDrawMap, ViewerMap, saveZone } from './components/FarmMap';
 
 const TABS = [
-  { id: 'viewer', label: 'Hiển thị phân khu' },
+  { id: 'viewer', label: 'Bản đồ lô' },
   { id: 'admin', label: 'Vẽ vùng (Admin)' },
 ];
 
@@ -19,11 +19,11 @@ export default function App() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 text-emerald-50">
+    <main className="mx-auto max-w-7xl px-4 py-6 text-emerald-50">
       <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">Bản đồ vùng trồng KD Green Farm</h1>
-          <p className="text-sm text-emerald-100/60">Xã Vụ Bổn, Đắk Lắk · Ảnh vệ tinh Esri</p>
+          <p className="text-sm text-emerald-100/60">Xã Vụ Bổn, Đắk Lắk · Dữ liệu định danh vườn cây 30/09/2026</p>
         </div>
         <div className="flex rounded-lg bg-[#042918] p-1" role="tablist">
           {TABS.map((t) => (
