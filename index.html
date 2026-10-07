@@ -10,13 +10,15 @@
         /* ===== 1. BIẾN MÀU & THIẾT LẬP CHUNG ===== */
         :root {
             --xanh-dam: #1b5e20;      /* Xanh lá đậm - navbar, footer */
-            --xanh-chinh: #2e7d32;    /* Xanh lá chủ đạo - tiêu đề, điểm nhấn */
+            --xanh-chinh: #2e7d32;    /* Xanh lá chủ đạo - tiêu đề, nút bấm */
             --xanh-nhat: #e8f5e9;     /* Xanh lá nhạt - nền trang */
             --xanh-vien: #a5d6a7;     /* Xanh viền nhẹ */
             --chu-chinh: #263238;     /* Màu chữ chính */
             --chu-phu: #546e7a;       /* Màu chữ phụ */
+            --do-loi: #c62828;        /* Màu báo lỗi */
             --trang: #ffffff;
             --bong-do: 0 6px 20px rgba(27, 94, 32, 0.15); /* Bóng mờ dùng chung */
+            --bo-goc: 8px;
         }
 
         * {
@@ -85,10 +87,14 @@
             align-items: start;
         }
 
+        .noi-dung > * {
+            min-width: 0; /* Tránh nội dung dài đẩy tràn cột */
+        }
+
         /* --- Cột trái: thông tin vùng trồng --- */
         .thong-tin {
             background-color: var(--trang);
-            border-radius: 8px;
+            border-radius: var(--bo-goc);
             padding: 24px;
             box-shadow: var(--bong-do);
             border-top: 4px solid var(--xanh-chinh);
@@ -98,6 +104,11 @@
             color: var(--xanh-chinh);
             font-size: 1.4rem;
             margin-bottom: 12px;
+        }
+
+        .thong-tin h3 {
+            font-size: 1rem;
+            margin: 18px 0 8px;
         }
 
         .thong-tin p {
@@ -114,6 +125,7 @@
         .chi-so li {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
             padding: 10px 0;
             border-bottom: 1px dashed var(--xanh-vien);
         }
@@ -124,6 +136,7 @@
 
         .chi-so strong {
             color: var(--xanh-dam);
+            text-align: right;
         }
 
         /* Nhãn trạng thái */
@@ -138,10 +151,42 @@
             margin: 0 6px 6px 0;
         }
 
+        /* Danh sách vùng trồng bấm nhanh (sinh tự động từ dữ liệu) */
+        .ds-vung {
+            list-style: none;
+            display: grid;
+            gap: 8px;
+        }
+
+        .ds-vung button {
+            width: 100%;
+            text-align: left;
+            background: var(--xanh-nhat);
+            border: 1px solid var(--xanh-vien);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font: inherit;
+            color: var(--chu-chinh);
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .ds-vung button:hover,
+        .ds-vung button:focus-visible {
+            background: #c8e6c9;
+            outline: none;
+        }
+
+        .ds-vung small {
+            display: block;
+            color: var(--chu-phu);
+        }
+
         /* --- Cột phải: khung chứa bản đồ --- */
         .khung-ban-do {
+            position: relative;           /* Làm mốc cho thanh tìm kiếm nằm đè lên */
             background-color: var(--trang);
-            border-radius: 8px;           /* Bo góc 8px theo yêu cầu */
+            border-radius: var(--bo-goc); /* Bo góc 8px theo yêu cầu */
             box-shadow: var(--bong-do);   /* Bóng mờ đổ xuống */
             overflow: hidden;             /* Cắt iframe theo góc bo */
         }
@@ -153,14 +198,163 @@
             font-weight: 600;
         }
 
-        .khung-ban-do iframe {
+        .vung-ban-do {
+            position: relative; /* Mốc cho các lớp nổi: tìm kiếm, thẻ kết quả, đang tải */
+        }
+
+        .vung-ban-do iframe {
             display: block;
             width: 100%;    /* Lấp đầy chiều ngang khung chứa */
             height: 500px;  /* Chiều cao cố định */
             border: 0;
         }
 
-        /* ===== 4. CHÂN TRANG (FOOTER) ===== */
+        /* ===== 4. THANH TÌM KIẾM NỔI TRÊN BẢN ĐỒ ===== */
+        .tim-kiem {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            width: min(380px, calc(100% - 24px));
+            display: flex;
+            gap: 6px;
+            background: var(--trang);
+            padding: 6px;
+            border-radius: var(--bo-goc);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        .tim-kiem input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid var(--xanh-vien);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font: inherit;
+            font-size: 0.9rem;
+            color: var(--chu-chinh);
+        }
+
+        .tim-kiem input:focus {
+            outline: 2px solid var(--xanh-chinh);
+            outline-offset: -1px;
+        }
+
+        .tim-kiem button {
+            border: 0;
+            border-radius: 6px;
+            padding: 8px 14px;
+            background: var(--xanh-chinh);
+            color: var(--trang);
+            font: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tim-kiem button:hover,
+        .tim-kiem button:focus-visible {
+            background: var(--xanh-dam);
+        }
+
+        /* Dòng thông báo lỗi ngay dưới ô tìm kiếm */
+        .thong-bao {
+            position: absolute;
+            top: 64px;
+            left: 12px;
+            z-index: 5;
+            max-width: calc(100% - 24px);
+            background: var(--trang);
+            color: var(--do-loi);
+            font-size: 0.85rem;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== 5. THẺ THÔNG TIN KẾT QUẢ (POPUP/CARD) ===== */
+        .the-ket-qua {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            z-index: 5;
+            width: min(320px, calc(100% - 24px));
+            background: var(--trang);
+            border-radius: var(--bo-goc);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            border-top: 4px solid var(--xanh-chinh);
+            padding: 14px 16px;
+            animation: hien-ra 0.2s ease-out;
+        }
+
+        @keyframes hien-ra {
+            from { transform: translateY(8px); opacity: 0.4; }
+            to   { transform: none; opacity: 1; }
+        }
+
+        .the-ket-qua h4 {
+            color: var(--xanh-dam);
+            font-size: 1rem;
+            margin-bottom: 6px;
+            padding-right: 24px; /* Chừa chỗ cho nút đóng */
+        }
+
+        .the-ket-qua dl {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 4px 12px;
+            font-size: 0.88rem;
+        }
+
+        .the-ket-qua dt {
+            color: var(--chu-phu);
+        }
+
+        .the-ket-qua dd {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        .the-ket-qua a {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--xanh-chinh);
+            font-weight: 600;
+        }
+
+        .nut-dong {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            border: 0;
+            background: none;
+            font-size: 1.3rem;
+            line-height: 1;
+            color: var(--chu-phu);
+            cursor: pointer;
+        }
+
+        /* Lớp phủ "Đang tải bản đồ..." khi iframe đang nạp lại */
+        .dang-tai {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            display: grid;
+            place-items: center;
+            background: rgba(232, 245, 233, 0.6);
+            color: var(--xanh-dam);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        /* ===== 6. CHÂN TRANG (FOOTER) ===== */
         .footer {
             background-color: var(--xanh-dam);
             color: #c8e6c9;
@@ -169,7 +363,7 @@
             font-size: 0.9rem;
         }
 
-        /* ===== 5. RESPONSIVE CHO MÁY TÍNH BẢNG & ĐIỆN THOẠI ===== */
+        /* ===== 7. RESPONSIVE CHO MÁY TÍNH BẢNG & ĐIỆN THOẠI ===== */
         @media (max-width: 900px) {
             .noi-dung {
                 grid-template-columns: 1fr; /* Xếp chồng thành 1 cột */
@@ -187,9 +381,23 @@
                 padding: 12px 16px;
             }
 
-            .khung-ban-do iframe {
+            .vung-ban-do iframe {
                 height: 420px; /* Giảm nhẹ chiều cao trên màn hình nhỏ */
             }
+
+            /* Trên điện thoại, thẻ kết quả nằm dưới bản đồ để không che bản đồ */
+            .the-ket-qua {
+                position: static;
+                width: auto;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                animation: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .the-ket-qua { animation: none; }
         }
     </style>
 </head>
@@ -208,17 +416,16 @@
 
         <!-- Cột trái: Thông tin giới thiệu vùng trồng -->
         <section class="thong-tin">
-            <h2>Giới thiệu vùng trồng</h2>
+            <h2>Nông trường KD Green Farm</h2>
             <p>
-                Hệ thống giúp số hóa, theo dõi và quản lý các vùng trồng trên nền tảng
-                bản đồ GIS: vị trí lô đất, diện tích, loại cây trồng và tình trạng canh tác.
+                Vùng trồng chuối xuất khẩu tại thôn Kruê, xã Vụ Bổn, huyện Krông Pắc,
+                tỉnh Đắk Lắk. Hệ thống giúp tra cứu và định vị nhanh từng vùng trồng trên bản đồ.
             </p>
 
             <ul class="chi-so">
-                <li><span>Tổng diện tích</span><strong>1.250 ha</strong></li>
-                <li><span>Số lô canh tác</span><strong>86 lô</strong></li>
-                <li><span>Cây trồng chính</span><strong>Lúa, Cà phê</strong></li>
-                <li><span>Cập nhật gần nhất</span><strong>07/10/2026</strong></li>
+                <li><span>Địa điểm</span><strong>Vụ Bổn, Đắk Lắk</strong></li>
+                <li><span>Cây trồng chính</span><strong>Chuối Cavendish</strong></li>
+                <li><span>Số vùng đang quản lý</span><strong id="tong-so-vung">0</strong></li>
             </ul>
 
             <div>
@@ -226,24 +433,59 @@
                 <span class="nhan">Có mã số vùng trồng</span>
                 <span class="nhan">Truy xuất nguồn gốc</span>
             </div>
+
+            <h3>Danh sách vùng trồng</h3>
+            <!-- Danh sách được sinh tự động từ mảng VUNG_TRONG trong JavaScript -->
+            <ul class="ds-vung" id="ds-vung"></ul>
         </section>
 
-        <!-- Cột phải: Bản đồ nhúng qua iframe -->
+        <!-- Cột phải: Bản đồ nhúng qua iframe + thanh tìm kiếm nổi -->
         <section class="khung-ban-do">
             <div class="tieu-de-ban-do">Bản đồ vùng trồng</div>
-            <!--
-                Bản đồ vệ tinh Google Maps (không cần API key) - vùng trồng chuối KD Green Farm,
-                thôn Kruê, xã Vụ Bổn, huyện Krông Pắc, tỉnh Đắk Lắk.
-                Đổi vị trí: sửa q=VĨ_ĐỘ,KINH_ĐỘ hoặc q=địa chỉ ; đổi độ phóng to: sửa z (10-20) ;
-                t=k là ảnh vệ tinh, bỏ t=k để xem bản đồ đường.
-                Có thể thay cả link bằng link nhúng từ Google My Maps, ArcGIS...
-            -->
-            <iframe
-                src="https://maps.google.com/maps?q=X%C3%A3+V%E1%BB%A5+B%E1%BB%95n,+Kr%C3%B4ng+P%E1%BA%AFc,+%C4%90%E1%BA%AFk+L%E1%BA%AFk&t=k&z=13&hl=vi&output=embed"
-                title="Bản đồ vùng trồng"
-                loading="lazy"
-                allowfullscreen>
-            </iframe>
+
+            <div class="vung-ban-do">
+                <!-- Thanh tìm kiếm nằm đè lên góc trên bên trái bản đồ -->
+                <form class="tim-kiem" id="form-tim-kiem" role="search" autocomplete="off">
+                    <input
+                        id="o-tim-kiem"
+                        type="search"
+                        list="goi-y-ma-vung"
+                        placeholder="Mã vùng hoặc tọa độ (12.7234, 108.3456)"
+                        aria-label="Nhập mã vùng trồng hoặc tọa độ">
+                    <datalist id="goi-y-ma-vung"></datalist>
+                    <button type="submit">Tìm kiếm</button>
+                </form>
+
+                <div class="thong-bao" id="thong-bao" role="alert" hidden></div>
+
+                <!--
+                    Bản đồ vệ tinh Google Maps (không cần API key).
+                    src được JavaScript tự thay đổi khi tìm kiếm (xem hàm taoLinkBanDo).
+                -->
+                <iframe
+                    id="ban-do"
+                    src="https://maps.google.com/maps?q=12.7234,108.3456&t=k&z=15&hl=vi&output=embed"
+                    title="Bản đồ vùng trồng"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    allowfullscreen>
+                </iframe>
+
+                <div class="dang-tai" id="dang-tai" hidden>Đang tải bản đồ…</div>
+
+                <!-- Thẻ thông tin kết quả tìm kiếm -->
+                <article class="the-ket-qua" id="the-ket-qua" aria-live="polite" hidden>
+                    <button type="button" class="nut-dong" id="nut-dong" aria-label="Đóng">&times;</button>
+                    <h4 id="kq-ten"></h4>
+                    <dl>
+                        <dt>Mã vùng</dt>     <dd id="kq-ma"></dd>
+                        <dt>Loại cây</dt>    <dd id="kq-cay"></dd>
+                        <dt>Diện tích</dt>   <dd id="kq-dien-tich"></dd>
+                        <dt>Tọa độ GPS</dt>  <dd id="kq-toa-do"></dd>
+                    </dl>
+                    <a id="kq-link" href="#" target="_blank" rel="noopener">Mở trên Google Maps ↗</a>
+                </article>
+            </div>
         </section>
 
     </main>
@@ -252,6 +494,235 @@
     <footer class="footer">
         &copy; 2026 Hệ thống Quản lý Vùng trồng GIS. Bảo lưu mọi quyền.
     </footer>
+
+    <script>
+        /* =========================================================
+           1. DỮ LIỆU GIẢ LẬP (MOCK DATA)
+           Sau này thay mảng này bằng dữ liệu lấy từ API/CSDL.
+           ========================================================= */
+        const VUNG_TRONG = [
+            {
+                maVung: "VUNG-CHUOI-01",
+                tenVung: "Vùng trồng chuối số 01 - KD Green Farm",
+                loaiCay: "Chuối già Nam Mỹ (Cavendish)",
+                dienTich: "100 ha",
+                viDo: 12.7234,
+                kinhDo: 108.3456
+            },
+            {
+                maVung: "VUNG-CHUOI-05",
+                tenVung: "Vùng trồng chuối số 05 - KD Green Farm",
+                loaiCay: "Chuối xuất khẩu KDA",
+                dienTich: "500 ha",
+                viDo: 12.7290,
+                kinhDo: 108.3510
+            }
+        ];
+
+        /* =========================================================
+           2. CẤU HÌNH BẢN ĐỒ
+           ========================================================= */
+        const CAU_HINH = {
+            doPhongTo: 16,       // Mức zoom khi định vị tới vùng trồng (10 - 20)
+            kieuBanDo: "k",      // "k" = vệ tinh, "m" = bản đồ đường, "h" = lai
+            banKinhKhopKm: 1     // Tọa độ nhập vào cách vùng trồng dưới 1 km thì coi là thuộc vùng đó
+        };
+
+        /* =========================================================
+           3. LẤY CÁC PHẦN TỬ GIAO DIỆN
+           ========================================================= */
+        const $ = (id) => document.getElementById(id);
+        const banDo = $("ban-do");
+        const oTimKiem = $("o-tim-kiem");
+        const thongBao = $("thong-bao");
+        const theKetQua = $("the-ket-qua");
+        const dangTai = $("dang-tai");
+
+        /* =========================================================
+           4. HÀM XỬ LÝ BẢN ĐỒ
+           ========================================================= */
+
+        /**
+         * Tạo link nhúng Google Maps có tâm tại tọa độ (viDo, kinhDo).
+         * Iframe Google Maps không điều khiển được bằng JS, nên ta đổi
+         * tham số q=VĨ_ĐỘ,KINH_ĐỘ trong src để iframe tự tải lại và chuyển tâm.
+         */
+        function taoLinkBanDo(viDo, kinhDo, zoom = CAU_HINH.doPhongTo) {
+            const thamSo = new URLSearchParams({
+                q: `${viDo},${kinhDo}`,
+                t: CAU_HINH.kieuBanDo,
+                z: zoom,
+                hl: "vi",
+                output: "embed"
+            });
+            return `https://maps.google.com/maps?${thamSo.toString()}`;
+        }
+
+        /** Chuyển tâm bản đồ tới tọa độ: thay src của iframe và hiện lớp "Đang tải" */
+        function diChuyenBanDo(viDo, kinhDo) {
+            const linkMoi = taoLinkBanDo(viDo, kinhDo);
+            if (banDo.src === linkMoi) return; // Đang ở đúng vị trí, không cần tải lại
+            dangTai.hidden = false;
+            banDo.src = linkMoi;
+        }
+
+        // Ẩn lớp "Đang tải" khi iframe nạp xong
+        banDo.addEventListener("load", () => { dangTai.hidden = true; });
+
+        /* =========================================================
+           5. HÀM TÌM KIẾM
+           ========================================================= */
+
+        /** Đọc chuỗi tọa độ dạng "12.7234, 108.3456" (chấp nhận dấu phẩy, chấm phẩy hoặc khoảng trắng) */
+        function docToaDo(chuoi) {
+            const khop = chuoi.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$/);
+            if (!khop) return null;
+            const viDo = parseFloat(khop[1]);
+            const kinhDo = parseFloat(khop[2]);
+            if (Math.abs(viDo) > 90 || Math.abs(kinhDo) > 180) return null;
+            return { viDo, kinhDo };
+        }
+
+        /** Khoảng cách giữa 2 điểm GPS (km) theo công thức Haversine */
+        function khoangCachKm(a, b) {
+            const R = 6371;
+            const rad = (d) => d * Math.PI / 180;
+            const dLat = rad(b.viDo - a.viDo);
+            const dLng = rad(b.kinhDo - a.kinhDo);
+            const h = Math.sin(dLat / 2) ** 2 +
+                      Math.cos(rad(a.viDo)) * Math.cos(rad(b.viDo)) * Math.sin(dLng / 2) ** 2;
+            return 2 * R * Math.asin(Math.sqrt(h));
+        }
+
+        /** Tìm vùng trồng gần tọa độ nhất (trong bán kính cho phép) */
+        function timVungGanNhat(toaDo) {
+            let ganNhat = null;
+            let kcNhoNhat = Infinity;
+            for (const vung of VUNG_TRONG) {
+                const kc = khoangCachKm(toaDo, vung);
+                if (kc < kcNhoNhat) {
+                    kcNhoNhat = kc;
+                    ganNhat = vung;
+                }
+            }
+            return kcNhoNhat <= CAU_HINH.banKinhKhopKm ? ganNhat : null;
+        }
+
+        /** Xử lý chính: nhận chuỗi người dùng nhập, trả về vùng trồng hoặc điểm tọa độ */
+        function timKiem(chuoi) {
+            const tuKhoa = chuoi.trim();
+            if (!tuKhoa) {
+                return { loi: "Vui lòng nhập mã vùng trồng hoặc tọa độ." };
+            }
+
+            // Ưu tiên 1: tìm theo mã vùng (không phân biệt hoa thường)
+            const theoMa = VUNG_TRONG.find(
+                (v) => v.maVung.toLowerCase() === tuKhoa.toLowerCase()
+            );
+            if (theoMa) return { vung: theoMa };
+
+            // Ưu tiên 2: tìm theo tọa độ
+            const toaDo = docToaDo(tuKhoa);
+            if (toaDo) {
+                const vungGan = timVungGanNhat(toaDo);
+                if (vungGan) return { vung: vungGan, toaDoNhap: toaDo };
+                // Không thuộc vùng nào: vẫn định vị tới điểm đó
+                return {
+                    vung: {
+                        maVung: "—",
+                        tenVung: "Vị trí tọa độ tùy chọn",
+                        loaiCay: "Chưa có dữ liệu",
+                        dienTich: "Chưa có dữ liệu",
+                        viDo: toaDo.viDo,
+                        kinhDo: toaDo.kinhDo
+                    }
+                };
+            }
+
+            return {
+                loi: `Không tìm thấy "${tuKhoa}". Hãy nhập mã vùng (VD: VUNG-CHUOI-01) hoặc tọa độ (VD: 12.7234, 108.3456).`
+            };
+        }
+
+        /* =========================================================
+           6. HIỂN THỊ KẾT QUẢ
+           ========================================================= */
+        function hienThongBao(noiDung) {
+            thongBao.textContent = noiDung;
+            thongBao.hidden = false;
+        }
+
+        function anThongBao() {
+            thongBao.hidden = true;
+        }
+
+        /** Đổ dữ liệu vùng trồng vào thẻ kết quả (dùng textContent để an toàn với dữ liệu nhập) */
+        function hienTheKetQua(vung) {
+            $("kq-ten").textContent = vung.tenVung;
+            $("kq-ma").textContent = vung.maVung;
+            $("kq-cay").textContent = vung.loaiCay;
+            $("kq-dien-tich").textContent = vung.dienTich;
+            $("kq-toa-do").textContent = `${vung.viDo.toFixed(6)}, ${vung.kinhDo.toFixed(6)}`;
+            $("kq-link").href = `https://www.google.com/maps?q=${vung.viDo},${vung.kinhDo}`;
+            theKetQua.hidden = false;
+        }
+
+        /** Chạy toàn bộ quy trình: tìm -> báo lỗi hoặc hiện thẻ + chuyển tâm bản đồ */
+        function xuLyTimKiem(chuoi) {
+            const ketQua = timKiem(chuoi);
+            if (ketQua.loi) {
+                hienThongBao(ketQua.loi);
+                return;
+            }
+            anThongBao();
+            hienTheKetQua(ketQua.vung);
+            diChuyenBanDo(ketQua.vung.viDo, ketQua.vung.kinhDo);
+        }
+
+        /* =========================================================
+           7. KHỞI TẠO GIAO DIỆN & GẮN SỰ KIỆN
+           ========================================================= */
+        function khoiTao() {
+            // Số vùng trồng
+            $("tong-so-vung").textContent = `${VUNG_TRONG.length} vùng`;
+
+            // Gợi ý mã vùng trong ô tìm kiếm + danh sách bấm nhanh ở cột trái
+            const goiY = $("goi-y-ma-vung");
+            const dsVung = $("ds-vung");
+            VUNG_TRONG.forEach((vung) => {
+                const option = document.createElement("option");
+                option.value = vung.maVung;
+                goiY.appendChild(option);
+
+                const li = document.createElement("li");
+                const nut = document.createElement("button");
+                nut.type = "button";
+                nut.innerHTML = "<strong></strong><small></small>";
+                nut.querySelector("strong").textContent = vung.maVung;
+                nut.querySelector("small").textContent = `${vung.loaiCay} · ${vung.dienTich}`;
+                nut.addEventListener("click", () => {
+                    oTimKiem.value = vung.maVung;
+                    xuLyTimKiem(vung.maVung);
+                });
+                li.appendChild(nut);
+                dsVung.appendChild(li);
+            });
+
+            // Bấm nút "Tìm kiếm" hoặc nhấn Enter
+            $("form-tim-kiem").addEventListener("submit", (e) => {
+                e.preventDefault();
+                xuLyTimKiem(oTimKiem.value);
+            });
+
+            // Xóa thông báo lỗi khi người dùng gõ lại
+            oTimKiem.addEventListener("input", anThongBao);
+
+            // Nút đóng thẻ kết quả
+            $("nut-dong").addEventListener("click", () => { theKetQua.hidden = true; });
+        }
+
+        khoiTao();
+    </script>
 
 </body>
 </html>
