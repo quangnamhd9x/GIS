@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <!-- Thẻ viewport giúp trang hiển thị đúng tỷ lệ trên điện thoại -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Vùng trồng GIS</title>
+
+    <style>
+        /* ===== 1. BIẾN MÀU & THIẾT LẬP CHUNG ===== */
+        :root {
+            --xanh-dam: #1b5e20;      /* Xanh lá đậm - navbar, footer */
+            --xanh-chinh: #2e7d32;    /* Xanh lá chủ đạo - tiêu đề, điểm nhấn */
+            --xanh-nhat: #e8f5e9;     /* Xanh lá nhạt - nền trang */
+            --xanh-vien: #a5d6a7;     /* Xanh viền nhẹ */
+            --chu-chinh: #263238;     /* Màu chữ chính */
+            --chu-phu: #546e7a;       /* Màu chữ phụ */
+            --trang: #ffffff;
+            --bong-do: 0 6px 20px rgba(27, 94, 32, 0.15); /* Bóng mờ dùng chung */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--xanh-nhat);
+            color: var(--chu-chinh);
+            line-height: 1.6;
+            /* Bố cục cột dọc để footer luôn nằm dưới cùng */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ===== 2. THANH ĐIỀU HƯỚNG (NAVBAR) ===== */
+        .navbar {
+            background: linear-gradient(90deg, var(--xanh-dam), var(--xanh-chinh));
+            color: var(--trang);
+            padding: 14px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: sticky;   /* Giữ navbar cố định khi cuộn trang */
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Logo dạng chữ tạm thời */
+        .logo {
+            background-color: var(--trang);
+            color: var(--xanh-dam);
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .ten-he-thong {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* ===== 3. NỘI DUNG CHÍNH (2 CỘT) ===== */
+        .noi-dung {
+            flex: 1; /* Chiếm phần không gian còn lại, đẩy footer xuống đáy */
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Cột trái 1 phần, cột phải 2 phần */
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* --- Cột trái: thông tin vùng trồng --- */
+        .thong-tin {
+            background-color: var(--trang);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: var(--bong-do);
+            border-top: 4px solid var(--xanh-chinh);
+        }
+
+        .thong-tin h2 {
+            color: var(--xanh-chinh);
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .thong-tin p {
+            color: var(--chu-phu);
+            margin-bottom: 16px;
+        }
+
+        /* Danh sách chỉ số vùng trồng */
+        .chi-so {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .chi-so li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--xanh-vien);
+        }
+
+        .chi-so li:last-child {
+            border-bottom: none;
+        }
+
+        .chi-so strong {
+            color: var(--xanh-dam);
+        }
+
+        /* Nhãn trạng thái */
+        .nhan {
+            display: inline-block;
+            background-color: var(--xanh-nhat);
+            color: var(--xanh-dam);
+            border: 1px solid var(--xanh-vien);
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin: 0 6px 6px 0;
+        }
+
+        /* --- Cột phải: khung chứa bản đồ --- */
+        .khung-ban-do {
+            background-color: var(--trang);
+            border-radius: 8px;           /* Bo góc 8px theo yêu cầu */
+            box-shadow: var(--bong-do);   /* Bóng mờ đổ xuống */
+            overflow: hidden;             /* Cắt iframe theo góc bo */
+        }
+
+        .tieu-de-ban-do {
+            background-color: var(--xanh-chinh);
+            color: var(--trang);
+            padding: 12px 18px;
+            font-weight: 600;
+        }
+
+        .khung-ban-do iframe {
+            display: block;
+            width: 100%;    /* Lấp đầy chiều ngang khung chứa */
+            height: 500px;  /* Chiều cao cố định */
+            border: 0;
+        }
+
+        /* ===== 4. CHÂN TRANG (FOOTER) ===== */
+        .footer {
+            background-color: var(--xanh-dam);
+            color: #c8e6c9;
+            text-align: center;
+            padding: 18px 24px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== 5. RESPONSIVE CHO MÁY TÍNH BẢNG & ĐIỆN THOẠI ===== */
+        @media (max-width: 900px) {
+            .noi-dung {
+                grid-template-columns: 1fr; /* Xếp chồng thành 1 cột */
+                padding: 20px 16px;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ten-he-thong {
+                font-size: 1rem;
+            }
+
+            .navbar {
+                padding: 12px 16px;
+            }
+
+            .khung-ban-do iframe {
+                height: 420px; /* Giảm nhẹ chiều cao trên màn hình nhỏ */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== THANH ĐIỀU HƯỚNG ===== -->
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="logo">GIS</div>
+            <h1 class="ten-he-thong">Hệ thống Quản lý Vùng trồng GIS</h1>
+        </div>
+    </header>
+
+    <!-- ===== NỘI DUNG CHÍNH ===== -->
+    <main class="noi-dung">
+
+        <!-- Cột trái: Thông tin giới thiệu vùng trồng -->
+        <section class="thong-tin">
+            <h2>Giới thiệu vùng trồng</h2>
+            <p>
+                Hệ thống giúp số hóa, theo dõi và quản lý các vùng trồng trên nền tảng
+                bản đồ GIS: vị trí lô đất, diện tích, loại cây trồng và tình trạng canh tác.
+            </p>
+
+            <ul class="chi-so">
+                <li><span>Tổng diện tích</span><strong>1.250 ha</strong></li>
+                <li><span>Số lô canh tác</span><strong>86 lô</strong></li>
+                <li><span>Cây trồng chính</span><strong>Lúa, Cà phê</strong></li>
+                <li><span>Cập nhật gần nhất</span><strong>07/10/2026</strong></li>
+            </ul>
+
+            <div>
+                <span class="nhan">Đạt chuẩn VietGAP</span>
+                <span class="nhan">Có mã số vùng trồng</span>
+                <span class="nhan">Truy xuất nguồn gốc</span>
+            </div>
+        </section>
+
+        <!-- Cột phải: Bản đồ nhúng qua iframe -->
+        <section class="khung-ban-do">
+            <div class="tieu-de-ban-do">Bản đồ vùng trồng</div>
+            <!-- Thay giá trị src bằng link bản đồ thật của bạn -->
+            <iframe
+                src="https://google.com"
+                title="Bản đồ vùng trồng"
+                loading="lazy"
+                allowfullscreen>
+            </iframe>
+        </section>
+
+    </main>
+
+    <!-- ===== CHÂN TRANG ===== -->
+    <footer class="footer">
+        &copy; 2026 Hệ thống Quản lý Vùng trồng GIS. Bảo lưu mọi quyền.
+    </footer>
+
+</body>
+</html>
