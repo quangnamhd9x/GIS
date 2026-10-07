@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Vùng trồng KDGF</title>
+
+    <!-- Thư viện Leaflet.js (bản đồ) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <style>
+        /* ===== BIẾN MÀU DASHBOARD TỐI / XANH LÁ ===== */
+        :root {
+            --fm-bg: #0d1611;        /* Nền trang */
+            --fm-panel: #15221a;     /* Nền khung module */
+            --fm-line: #24372b;      /* Đường viền */
+            --fm-text: #e2efe6;      /* Chữ chính */
+            --fm-muted: #8fa898;     /* Chữ phụ */
+            --fm-accent: #22c55e;    /* Xanh lá nhấn */
+            --fm-accent-dk: #16a34a;
+            --fm-danger: #f87171;
+            --fm-radius: 8px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px 16px;
+            background: var(--fm-bg);
+            color: var(--fm-text);
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .trang {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .trang h1 {
+            font-size: 1.25rem;
+            margin: 0 0 4px;
+        }
+
+        .trang > p {
+            margin: 0 0 16px;
+            color: var(--fm-muted);
+            font-size: 0.9rem;
+        }
+
+        .trang > p a { color: var(--fm-accent); }
+
+        /* ===== MODULE BẢN ĐỒ (.fm = farm map) ===== */
+        .fm {
+            background: var(--fm-panel);
+            border: 1px solid var(--fm-line);
+            border-radius: var(--fm-radius);
+            overflow: hidden;
+        }
+
+        /* Thanh công cụ */
+        .fm-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--fm-line);
+        }
+
+        .fm-tabs {
+            display: flex;
+            background: var(--fm-bg);
+            border-radius: var(--fm-radius);
+            padding: 3px;
+        }
+
+        .fm-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .fm-info {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--fm-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .fm-info b { color: var(--fm-accent); }
+
+        /* Nút bấm */
+        .fm button {
+            font: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 7px 14px;
+            cursor: pointer;
+            color: var(--fm-text);
+            background: transparent;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        .fm button:focus-visible { outline: 2px solid var(--fm-accent); outline-offset: 1px; }
+        .fm-tabs button { color: var(--fm-muted); }
+        .fm-tabs button.on { background: var(--fm-accent); color: #06210f; }
+        .fm .ghost { border-color: var(--fm-line); }
+        .fm .ghost:hover { border-color: var(--fm-muted); }
+        .fm .primary { background: var(--fm-accent); color: #06210f; }
+        .fm .primary:hover { background: var(--fm-accent-dk); }
+        .fm .danger:hover { border-color: var(--fm-danger); color: var(--fm-danger); }
+
+        /* Ô nhập Mã mẻ & chọn trạng thái */
+        .fm input,
+        .fm select {
+            font: inherit;
+            font-size: 0.85rem;
+            color: var(--fm-text);
+            background: var(--fm-bg);
+            border: 1px solid var(--fm-line);
+            border-radius: 6px;
+            padding: 7px 10px;
+            min-width: 0;
+        }
+
+        .fm input:focus,
+        .fm select:focus { outline: none; border-color: var(--fm-accent); }
+
+        /* Khung bản đồ */
+        .fm-map {
+            height: 520px;
+            background: #0a120d;
+        }
+
+        .fm-map.dang-ve { cursor: crosshair; }
+
+        /* Khung xuất JSON */
+        .fm-output {
+            border-top: 1px solid var(--fm-line);
+            padding: 10px 12px;
+        }
+
+        .fm-output-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--fm-muted);
+            margin-bottom: 6px;
+        }
+
+        .fm-output pre {
+            margin: 0;
+            max-height: 220px;
+            overflow: auto;
+            background: var(--fm-bg);
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #a7f3c0;
+        }
+
+        [hidden] { display: none !important; }
+
+        /* Popup & nhãn diện tích theo tông tối */
+        .fm .leaflet-popup-content-wrapper,
+        .fm .leaflet-popup-tip {
+            background: var(--fm-panel);
+            color: var(--fm-text);
+            border: 1px solid var(--fm-line);
+        }
+
+        .fm-popup h4 { margin: 0 0 6px; font-size: 0.95rem; }
+        .fm-popup dl { display: grid; grid-template-columns: auto auto; gap: 3px 12px; margin: 0; font-size: 0.82rem; }
+        .fm-popup dt { color: var(--fm-muted); }
+        .fm-popup dd { margin: 0; font-weight: 600; }
+
+        .fm-badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            color: #06210f;
+        }
+
+        .fm .fm-area-label {
+            background: rgba(13, 22, 17, 0.85);
+            color: #fff;
+            border: 1px solid var(--fm-accent);
+            font-weight: 700;
+            box-shadow: none;
+        }
+
+        @media (max-width: 640px) {
+            .fm-map { height: 420px; }
+            .fm-info { margin-left: 0; width: 100%; }
+            .fm-tools input { flex: 1 1 140px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="trang">
+        <h1>Bản đồ vùng trồng KD Green Farm</h1>
+        <p>Chế độ <b>Hiển thị</b>: bấm vào vùng để xem thông tin. Chế độ <b>Chỉnh sửa</b>: bấm lên bản đồ để chấm từng đỉnh ranh giới, rồi bấm <b>Lưu</b>. · <a href="index.html">← Trang chủ</a></p>
+
+        <!-- Vị trí gắn module bản đồ -->
+        <div id="ban-do-kdgf"></div>
+    </div>
+
+    <script>
+    /* =====================================================================
+       MODULE BẢN ĐỒ VÙNG TRỒNG (FarmMap) - chỉ phụ thuộc Leaflet.js
+       Dùng:  const fm = FarmMap(element, { data, onSave });
+       API:   fm.setMode('view' | 'edit'), fm.setData(mang), fm.getData(), fm.map
+       ===================================================================== */
+
+    // Trạng thái sơ chế -> màu hiển thị trên bản đồ
+    const TRANG_THAI = {
+        "Chờ sơ chế":  "#f59e0b",
+        "Đang sơ chế": "#38bdf8",
+        "Đã sơ chế":   "#22c55e"
+    };
+
+    // Diện tích đa giác trên mặt cầu (m²) - cùng công thức với Leaflet.draw
+    function tinhDienTich(diem) {
+        const R = 6378137, rad = Math.PI / 180;
+        let s = 0;
+        for (let i = 0; i < diem.length; i++) {
+            const [lat1, lng1] = diem[i];
+            const [lat2, lng2] = diem[(i + 1) % diem.length];
+            s += (lng2 - lng1) * rad * (2 + Math.sin(lat1 * rad) + Math.sin(lat2 * rad));
+        }
+        return Math.abs(s * R * R / 2);
+    }
+
+    const dinhDangDienTich = (m2) =>
+        m2 >= 10000 ? `${(m2 / 10000).toFixed(2)} ha` : `${Math.round(m2).toLocaleString("vi-VN")} m²`;
+
+    // Chống chèn mã HTML khi hiển thị dữ liệu từ Database
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    function FarmMap(root, { data = [], onSave = () => {}, center = [12.7234, 108.3456], zoom = 15 } = {}) {
+        // ---- 1. Dựng giao diện ----
+        root.classList.add("fm");
+        root.innerHTML = `
+            <div class="fm-bar">
+                <div class="fm-tabs" role="tablist">
+                    <button type="button" data-mode="view" class="on">Hiển thị</button>
+                    <button type="button" data-mode="edit">Chỉnh sửa</button>
+                </div>
+                <div class="fm-tools" hidden>
+                    <input class="fm-code" placeholder="Mã mẻ, VD: ME-2026-003" aria-label="Mã mẻ">
+                    <select class="fm-status" aria-label="Trạng thái sơ chế">
+                        ${Object.keys(TRANG_THAI).map((s) => `<option>${s}</option>`).join("")}
+                    </select>
+                    <button type="button" class="ghost" data-act="undo">Hoàn tác</button>
+                    <button type="button" class="ghost danger" data-act="clear">Xóa</button>
+                    <button type="button" class="primary" data-act="save">Lưu</button>
+                </div>
+                <span class="fm-info"></span>
+            </div>
+            <div class="fm-map"></div>
+            <div class="fm-output" hidden>
+                <div class="fm-output-head">JSON vùng trồng vừa lưu <button type="button" class="ghost" data-act="copy">Sao chép</button></div>
+                <pre></pre>
+            </div>`;
+
+        const $ = (s) => root.querySelector(s);
+        const elMap = $(".fm-map"), elInfo = $(".fm-info");
+
+        // ---- 2. Khởi tạo bản đồ vệ tinh (Esri World Imagery, không cần API key) ----
+        const map = L.map(elMap).setView(center, zoom);
+        L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+            maxZoom: 19, attribution: "Ảnh vệ tinh © Esri"
+        }).addTo(map);
+
+        const lopVung = L.featureGroup().addTo(map);  // Các vùng đã có (chế độ Hiển thị)
+        const lopVe = L.featureGroup().addTo(map);    // Hình đang vẽ (chế độ Chỉnh sửa)
+        let cheDo = "view", diemVe = [], vung = [...data];
+
+        // ---- 3. CHẾ ĐỘ HIỂN THỊ: vẽ lại vùng từ dữ liệu Database ----
+        function veCacVung() {
+            lopVung.clearLayers();
+            const choPhepBam = cheDo === "view";
+            vung.forEach((v) => {
+                const mau = TRANG_THAI[v.trangThai] || "#22c55e";
+                const dienTich = v.dienTichHa != null ? v.dienTichHa * 10000 : tinhDienTich(v.toaDo);
+                const poly = L.polygon(v.toaDo, {
+                    color: mau, weight: 2, fillOpacity: choPhepBam ? 0.3 : 0.12, interactive: choPhepBam
+                }).addTo(lopVung);
+                poly.bindPopup(`
+                    <div class="fm-popup">
+                        <h4>${esc(v.maMe)}</h4>
+                        <dl>
+                            <dt>Trạng thái</dt><dd><span class="fm-badge" style="background:${mau}">${esc(v.trangThai)}</span></dd>
+                            <dt>Diện tích</dt><dd>${dinhDangDienTich(dienTich)}</dd>
+                            <dt>Số đỉnh</dt><dd>${v.toaDo.length}</dd>
+                        </dl>
+                    </div>`);
+            });
+            if (cheDo === "view") elInfo.innerHTML = `<b>${vung.length}</b> vùng trồng`;
+        }
+
+        // ---- 4. CHẾ ĐỘ CHỈNH SỬA: click để chấm đỉnh, tự tính diện tích ----
+        function veHinhDangVe() {
+            lopVe.clearLayers();
+            if (diemVe.length >= 3) {
+                const m2 = tinhDienTich(diemVe);
+                L.polygon(diemVe, { color: "#22c55e", weight: 2, dashArray: "6 4", fillOpacity: 0.25 })
+                    .bindTooltip(dinhDangDienTich(m2), { permanent: true, direction: "center", className: "fm-area-label" })
+                    .addTo(lopVe);
+                elInfo.innerHTML = `${diemVe.length} đỉnh · Diện tích <b>${dinhDangDienTich(m2)}</b>`;
+            } else {
+                if (diemVe.length === 2) L.polyline(diemVe, { color: "#22c55e", dashArray: "6 4" }).addTo(lopVe);
+                elInfo.textContent = `Bấm lên bản đồ để chấm đỉnh (${diemVe.length}/3 tối thiểu)`;
+            }
+            diemVe.forEach((p, i) => L.circleMarker(p, {
+                radius: i === 0 ? 6 : 4, color: "#fff", weight: 2, fillColor: "#22c55e", fillOpacity: 1
+            }).addTo(lopVe));
+        }
+
+        map.on("click", (e) => {
+            if (cheDo !== "edit") return;
+            diemVe.push([+e.latlng.lat.toFixed(6), +e.latlng.lng.toFixed(6)]);
+            veHinhDangVe();
+        });
+
+        function luu() {
+            const maMe = $(".fm-code").value.trim();
+            if (diemVe.length < 3) return (elInfo.innerHTML = `<span style="color:var(--fm-danger)">Cần ít nhất 3 đỉnh để tạo vùng.</span>`);
+            if (!maMe) { $(".fm-code").focus(); return (elInfo.innerHTML = `<span style="color:var(--fm-danger)">Nhập Mã mẻ trước khi lưu.</span>`); }
+
+            // Bản ghi chuẩn để lưu Database
+            const banGhi = {
+                maMe,
+                trangThai: $(".fm-status").value,
+                dienTichHa: +(tinhDienTich(diemVe) / 10000).toFixed(4),
+                toaDo: diemVe  // [[vĩ độ, kinh độ], ...]
+            };
+            vung.push(banGhi);
+            // In gọn mỗi cặp tọa độ trên 1 dòng cho dễ đọc
+            $(".fm-output pre").textContent = JSON.stringify(banGhi, null, 2)
+                .replace(/\[\s+(-?[\d.]+),\s+(-?[\d.]+)\s+\]/g, "[$1, $2]");
+            $(".fm-output").hidden = false;
+            onSave(banGhi);  // Gửi ra ngoài để gọi API lưu Database
+
+            diemVe = [];
+            $(".fm-code").value = "";
+            veHinhDangVe();
+            veCacVung();
+            elInfo.innerHTML = `Đã lưu <b>${esc(maMe)}</b> · ${dinhDangDienTich(banGhi.dienTichHa * 10000)}`;
+        }
+
+        // ---- 5. Chuyển chế độ & gắn sự kiện nút bấm ----
+        function setMode(m) {
+            cheDo = m;
+            root.querySelectorAll("[data-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === m));
+            $(".fm-tools").hidden = m !== "edit";
+            elMap.classList.toggle("dang-ve", m === "edit");
+            m === "edit" ? map.doubleClickZoom.disable() : map.doubleClickZoom.enable();
+            map.closePopup();
+            veCacVung();
+            if (m === "edit") veHinhDangVe(); else lopVe.clearLayers(), (diemVe = []);
+        }
+
+        root.addEventListener("click", (e) => {
+            const nut = e.target.closest("button");
+            if (!nut) return;
+            if (nut.dataset.mode) return setMode(nut.dataset.mode);
+            switch (nut.dataset.act) {
+                case "undo":  diemVe.pop(); veHinhDangVe(); break;
+                case "clear": diemVe = []; veHinhDangVe(); break;
+                case "save":  luu(); break;
+                case "copy":
+                    navigator.clipboard?.writeText($(".fm-output pre").textContent)
+                        .then(() => (nut.textContent = "Đã chép"), () => {});
+                    setTimeout(() => (nut.textContent = "Sao chép"), 1500);
+                    break;
+            }
+        });
+
+        veCacVung();
+        if (vung.length) map.fitBounds(lopVung.getBounds(), { padding: [40, 40] });
+
+        return {
+            map,
+            setMode,
+            getData: () => vung,
+            setData(mang) { vung = [...mang]; veCacVung(); if (vung.length) map.fitBounds(lopVung.getBounds(), { padding: [40, 40] }); }
+        };
+    }
+
+    /* =====================================================================
+       DEMO: dữ liệu giả lập như khi đọc từ Database
+       ===================================================================== */
+    const DU_LIEU_DB = [
+        {
+            maMe: "ME-2026-001",
+            trangThai: "Đã sơ chế",
+            toaDo: [[12.7252, 108.3438], [12.7255, 108.3472], [12.7224, 108.3478], [12.7218, 108.3442]]
+        },
+        {
+            maMe: "ME-2026-002",
+            trangThai: "Đang sơ chế",
+            toaDo: [[12.7302, 108.3492], [12.7306, 108.3528], [12.7280, 108.3536], [12.7271, 108.3500]]
+        },
+        {
+            maMe: "ME-2026-003",
+            trangThai: "Chờ sơ chế",
+            toaDo: [[12.7265, 108.3445], [12.7270, 108.3478], [12.7262, 108.3490], [12.7258, 108.3450]]
+        }
+    ];
+
+    const banDo = FarmMap(document.getElementById("ban-do-kdgf"), {
+        data: DU_LIEU_DB,
+        onSave: (banGhi) => {
+            // TODO: gọi API lưu Database, ví dụ:
+            // fetch("/api/vung-trong", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(banGhi) });
+            console.log("Vùng trồng mới:", banGhi);
+        }
+    });
+    </script>
+</body>
+</html>
